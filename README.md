@@ -3,6 +3,8 @@
 ## Overview
 This project uses MediaPipe to track hand movements, extract 3D coordinates, and translate them into robotic arm movements. The data is smoothed and plotted using Matplotlib for real-time visualization.
 
+The robot arm used in this project is [https://www.waveshare.com/wiki/RoArm-M2-S](https://www.waveshare.com/wiki/RoArm-M2-S).
+
 ## Features
 - **Real-time hand tracking** using OpenCV and MediaPipe
 - **Smoothing of hand coordinates** to reduce noise

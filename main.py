@@ -1,10 +1,12 @@
 import cv2
 import mediapipe as mp
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.animation import FuncAnimation
 import requests
 import json
 import time
+
 # Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -47,8 +49,9 @@ if not cap.isOpened():
     print("Error: Could not open camera.")
     exit()
 
+
 # Set up subplots for x, y, z movement
-fig, (ax_x, ax_y, ax_z) = plt.subplots(3, 1, figsize=(10, 6))
+fig, (ax_x, ax_y, ax_z) = plt.subplots(3, 1, figsize=(4, 8))
 ax_x.set_title("X Position of Hand")
 ax_y.set_title("Y Position of Hand")
 ax_z.set_title("Z Position of Hand")
@@ -60,6 +63,9 @@ z_coords = []
 
 # Set the initial position for transformation (350, -5, 237)
 initial_position = (350, -5, 237)
+count = 0
+take_val=0
+fist_open = 0
 
 def update_plot(frame):
     # Clear and update the plot each frame
@@ -93,10 +99,8 @@ def update_plot(frame):
 # Set up the figure display and plot in the background (this keeps the plot updated)
 plt.ion()  # Turn on interactive mode
 plt.show()
-count = 0
-take_val=0
-fist_open = 0
 
+cv2.namedWindow("Hand Tracking")
 while cap.isOpened():
     if count == 4:
         take_val = 1
@@ -171,7 +175,11 @@ while cap.isOpened():
                 cv2.circle(frame, (cx, cy), 5, (255, 0, 0), -1)  # Draw a blue circle at each landmark
 
     # Show the webcam feed with landmarks
+    
+   
+   
     cv2.imshow("Hand Tracking", frame)
+    cv2.moveWindow('Hand Tracking', 500, 0)
 
     # Update the plot window
     update_plot(None)

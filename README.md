@@ -38,6 +38,7 @@ python hand_tracking.py
 - **Move your hand** to track its X, Y, Z positions.
 - **Close your fist** to stop movement.
 - **Open your fist** to allow movement.
+- **Added smoothness to different axis related motions.
 - **Press 'q'** to exit the program.
 
 ## Screenshots
@@ -60,7 +61,7 @@ python hand_tracking.py
 ## Future Improvements
 - Improve hand tracking accuracy
 - Optimize robotic arm control for smoother movements
-- Support multiple hand gestures for different commands
+  
 
 ## License
 This project is open-source under the MIT License.

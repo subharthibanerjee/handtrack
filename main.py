@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation
 import requests
 import json
 import time
-
+import math
 # Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -66,6 +66,23 @@ initial_position = (350, -5, 237)
 count = 0
 take_val=0
 fist_open = 0
+
+def calculate_angle(p1, p2, p3):
+    """Calculate the angle between three points (p1, p2, p3)"""
+    # Vector from p2 to p1
+    vector1 = [p1.x - p2.x, p1.y - p2.y]
+    # Vector from p2 to p3
+    vector2 = [p3.x - p2.x, p3.y - p2.y]
+
+    # Dot product and magnitudes
+    dot_product = vector1[0] * vector2[0] + vector1[1] * vector2[1]
+    magnitude1 = math.sqrt(vector1[0]**2 + vector1[1]**2)
+    magnitude2 = math.sqrt(vector2[0]**2 + vector2[1]**2)
+
+    # Calculate the angle in radians
+    angle = math.acos(dot_product / (magnitude1 * magnitude2))
+
+    return angle
 
 def update_plot(frame):
     # Clear and update the plot each frame
@@ -134,7 +151,8 @@ while cap.isOpened():
                 # Transforming the coordinates based on initial position offset
                 x_transformed = initial_position[0] -(smoothed_z * 1000)   # Map x to image width and apply transformation
                 y_transformed = (smoothed_x * 640/2) + initial_position[1]  # Map y to image height and apply transformation
-                z_transformed = (smoothed_y*10) + initial_position[2]  # Arbitrary scaling for z coordinate
+                z_transformed =  initial_position[2] - (smoothed_y*400)  # Arbitrary scaling for z coordinate
+                
                 if z_transformed < -74.:
                     z_transformed = -70
                 
@@ -143,18 +161,28 @@ while cap.isOpened():
                 y_coords.append(y_transformed)
                 z_coords.append(z_transformed)
                 wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+                thumb_cmc = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_CMC]
                 thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
-
+                index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
                 
+                
+                thumb_angle = calculate_angle(wrist, thumb_cmc, thumb_tip)
+
+                # Calculate angle between wrist, index finger base (MCP), and index finger tip
+                index_angle = calculate_angle(wrist, hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP], index_finger_tip)
+
+                # Display the angles (in radians)
+                cv2.putText(frame, f"Thumb Angle: {thumb_angle:.2f} rad", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+                cv2.putText(frame, f"Index Angle: {index_angle:.2f} rad", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
 
                 # You can use the distance between thumb tip and wrist to detect if fist is open or closed
                 distance = ((wrist.x - thumb_tip.x) ** 2 + (wrist.y - thumb_tip.y) ** 2 + (wrist.z - thumb_tip.z) ** 2) ** 0.5
-                if distance < 0.05:  # Threshold for detecting a fist close
-                    print("Fist is closed")
-                    fist_open= 0
+                if thumb_angle > 1.5 and index_angle > 1.5:
+                    print("Fist is open")
+                    fist_open= 1
                 else:
-                    #print("Fist is open")
-                    fist_open=1
+                    print("Fist is open")
+                    fist_open=0
 
 
                 # Display the transformed coordinates on the console
@@ -162,10 +190,12 @@ while cap.isOpened():
                 if take_val:
                     
                     if (fist_open):
-                        move_to_xyzt(my_url, 104, round(x_transformed, 4),round(y_transformed,4), loc_z, 3.14,10)
+                        #move_to_xyzt(my_url, 104, round(x_transformed, 4),round(y_transformed,4), loc_z, 3.14,10)
+                        move_to_xyzt(my_url, 104, round(x_transformed, 4),round(y_transformed, 4), round(z_transformed, 4), round(thumb_angle, 4),10)
                         
                     else:
-                        move_to_xyzt(my_url, 104, round(x_transformed,4),round(y_transformed, 4), loc_z, 3.14,10)
+                        #move_to_xyzt(my_url, 104, round(x_transformed,4),round(y_transformed, 4), loc_z, 3.14,10)
+                        move_to_xyzt(my_url, 104, round(x_transformed, 4),round(y_transformed, 4), round(z_transformed, 4), 3.14,10)
                         
 
                     take_val=0

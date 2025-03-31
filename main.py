@@ -24,7 +24,20 @@ def smooth(value, previous):
     if previous is None:
         return value
     return alpha * value + (1 - alpha) * previous
-
+def return_json_commands(url, cmd):
+    #print(f"Sending command {cmd}")
+    cmd = json.dumps(cmd)
+    #print(cmd)
+    url = f"{url}js?json={cmd}"
+    resp = requests.get(url)
+    #print(f"got response {resp.status_code}")
+    data = resp.text
+    
+    return data
+def servo_feedback(url):
+    CMD_SERVO_RAD_FEEDBACK = {"T":105}
+    data = return_json_commands(url, CMD_SERVO_RAD_FEEDBACK)
+    return data
 def create_json_commands(url, cmd):
     #print(f"Sending command {cmd}")
     cmd = json.dumps(cmd)

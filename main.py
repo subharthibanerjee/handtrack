@@ -15,7 +15,7 @@ hands = mp_hands.Hands()
 #@TODO: make the lines smoother so that there is no inherent noise during the movement
 #@TODO: also try to do joint control
 #@TODO: Do not abruptly close or open the fist
-alpha = 0.2  # Smoothing factor (0 < alpha < 1)
+alpha = 0.5 # Smoothing factor (0 < alpha < 1)
 smoothed_x, smoothed_y, smoothed_z = None, None, None
 
 # Open Webcam
